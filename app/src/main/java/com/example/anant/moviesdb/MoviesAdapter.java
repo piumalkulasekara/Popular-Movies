@@ -7,7 +7,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.anant.moviesdb.Utilities.Constants;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
 
 /**
  * Created by anant on 16/9/17.
@@ -18,9 +21,11 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
     public Context context;
     public int mNumberImages;
     public ImageView mMoviesImage;
+    public ArrayList<String> mList;
 
-    public MoviesAdapter(int numberOfImages){
+    public MoviesAdapter(int numberOfImages, ArrayList<String> list){
         mNumberImages = numberOfImages;
+        mList = list;
     }
 
     @Override
@@ -33,7 +38,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
 
     @Override
     public void onBindViewHolder(MoviesViewHolder holder, int position) {
-        Picasso.with(context).load("http://i.imgur.com/DvpvklR.png").into(mMoviesImage);
+        Picasso.with(context).load(Constants.IMAGE_BASE_URL+Constants.FILE_SIZE+ mList.get(position)).into(mMoviesImage);
     }
 
     @Override
