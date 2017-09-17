@@ -46,6 +46,12 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
         return mNumberImages;
     }
 
+    @Override
+    public int getItemViewType(int position)
+    {
+        return position;
+    }
+
     public class MoviesViewHolder extends RecyclerView.ViewHolder{
 
         public MoviesViewHolder(View v){
