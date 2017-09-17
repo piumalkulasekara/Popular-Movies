@@ -25,10 +25,10 @@ public class MoviesList {
 
     public String mJSONResults;
 
-    public URL buildURL(){
+    public URL buildURL(String URL){
 
         URL url = null;
-        Uri builtUri = Uri.parse(Constants.POPULAR_BASE_URL).buildUpon().
+        Uri builtUri = Uri.parse(URL).buildUpon().
                 appendQueryParameter("api_key", Constants.API_KEY).
                 appendQueryParameter("language", "en-US").
                 build();
@@ -41,9 +41,11 @@ public class MoviesList {
 
     }
 
-    public String getJSONResponse() throws IOException {
+    public String getJSONResponse(String url) throws IOException {
 
-        HttpURLConnection urlConnection = (HttpURLConnection) buildURL().openConnection();
+        mJSONResults = null;
+
+        HttpURLConnection urlConnection = (HttpURLConnection) buildURL(url).openConnection();
 
         try {
             InputStream in = urlConnection.getInputStream();

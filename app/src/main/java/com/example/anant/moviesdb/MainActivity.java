@@ -10,7 +10,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
+import com.example.anant.moviesdb.Utilities.Constants;
 import com.example.anant.moviesdb.Utilities.MoviesList;
 
 import org.json.JSONException;
@@ -18,7 +20,7 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MoviesAdapter.ListItemClickListener {
 
     public RecyclerView mRecyclerView;
     public MoviesAdapter mMoviesAdapter;
@@ -32,12 +34,11 @@ public class MainActivity extends AppCompatActivity {
 
         mRecyclerView = (RecyclerView) findViewById(R.id.rvNumbersRecycler);
         mMoviesList = new MoviesList();
-        new FetchJSON().execute();
-
         GridLayoutManager layoutManager = new GridLayoutManager(this, calculateNoOfColumns());
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
         mProgress = (ProgressBar)findViewById(R.id.dialog_progress);
+        new FetchJSON().execute(Constants.POPULAR_BASE_URL);
 
     }
 
@@ -49,23 +50,36 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        new FetchJSON().execute();
+        if(item.getItemId()==R.id.popular_sort_action){
+            item.setChecked(true);
+            new FetchJSON().execute(Constants.POPULAR_BASE_URL);
+        }
+        else if(item.getItemId()==R.id.top_sort_action){
+            item.setChecked(true);
+            new FetchJSON().execute(Constants.TOP_RATED);
+        }
         return super.onOptionsItemSelected(item);
     }
 
-    public class FetchJSON extends AsyncTask<Void, Void, String>{
+    @Override
+    public void listItemClicked(int index) {
+        Toast.makeText(this, String.valueOf(index), Toast.LENGTH_SHORT).show();
+    }
+
+    public class FetchJSON extends AsyncTask<String, Void, String>{
 
         @Override
         protected void onPreExecute() {
+            mProgress.setVisibility(View.VISIBLE);
             mRecyclerView.setVisibility(View.INVISIBLE);
             super.onPreExecute();
         }
 
         @Override
-        protected String doInBackground(Void... params) {
+        protected String doInBackground(String... params) {
             String s = null;
             try {
-               s =  mMoviesList.getJSONResponse();
+               s =  mMoviesList.getJSONResponse(params[0]);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -74,16 +88,14 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String s) {
-            mRecyclerView.setVisibility(View.VISIBLE);
             if(s!=null){
                 try {
                     ArrayList<String> l = mMoviesList.parseJSONImage();
-                    mMoviesAdapter = new MoviesAdapter(l.size(), l);
+                    mMoviesAdapter = new MoviesAdapter(l.size(), l, mRecyclerView, mProgress, MainActivity.this);
                     mRecyclerView.setAdapter(mMoviesAdapter);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                mProgress.setVisibility(View.INVISIBLE);
             }
             super.onPostExecute(s);
         }
