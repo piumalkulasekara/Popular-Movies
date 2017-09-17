@@ -2,6 +2,7 @@ package com.example.anant.moviesdb;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +39,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
 
     @Override
     public void onBindViewHolder(MoviesViewHolder holder, int position) {
-        Picasso.with(context).load(Constants.IMAGE_BASE_URL+Constants.FILE_SIZE+ mList.get(position)).into(mMoviesImage);
+        Picasso.with(context).load(Constants.IMAGE_BASE_URL+Constants.FILE_SIZE+ mList.get(position)).placeholder(R.mipmap.ic_launcher).resize(500, 750).into(mMoviesImage);
     }
 
     @Override

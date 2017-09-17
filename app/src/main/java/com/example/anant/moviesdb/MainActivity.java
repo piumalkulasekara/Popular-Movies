@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String s) {
+            mRecyclerView.setVisibility(View.VISIBLE);
             if(s!=null){
                 try {
                     ArrayList<String> l = mMoviesList.parseJSONImage();
@@ -82,7 +83,6 @@ public class MainActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                mRecyclerView.setVisibility(View.VISIBLE);
                 mProgress.setVisibility(View.INVISIBLE);
             }
             super.onPostExecute(s);
