@@ -1,14 +1,14 @@
-package com.example.anant.moviesdb;
+package com.example.anant.moviesdb.Adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import com.example.anant.moviesdb.R;
 import com.example.anant.moviesdb.Utilities.Constants;
 import com.squareup.picasso.Picasso;
 
@@ -20,10 +20,10 @@ import java.util.ArrayList;
 
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder> {
 
-    public Context context;
-    public int mNumberImages;
-    public ImageView mMoviesImage;
-    public ArrayList<String> mList;
+    private Context context;
+    private int mNumberImages;
+    private ImageView mMoviesImage;
+    private ArrayList<String> mList;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private final ListItemClickListener mListItemClicked;

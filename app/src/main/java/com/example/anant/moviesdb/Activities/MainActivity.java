@@ -1,5 +1,6 @@
-package com.example.anant.moviesdb;
+package com.example.anant.moviesdb.Activities;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,6 +13,8 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.example.anant.moviesdb.Adapters.MoviesAdapter;
+import com.example.anant.moviesdb.R;
 import com.example.anant.moviesdb.Utilities.Constants;
 import com.example.anant.moviesdb.Utilities.MoviesList;
 
@@ -63,7 +66,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Lis
 
     @Override
     public void listItemClicked(int index) {
-        Toast.makeText(this, String.valueOf(index), Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, DetailsActivity.class);
+        startActivity(intent);
     }
 
     public class FetchJSON extends AsyncTask<String, Void, String>{
