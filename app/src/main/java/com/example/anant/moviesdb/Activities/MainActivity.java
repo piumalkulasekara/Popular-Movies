@@ -1,6 +1,9 @@
 package com.example.anant.moviesdb.Activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,7 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.example.anant.moviesdb.Adapters.MoviesAdapter;
 import com.example.anant.moviesdb.R;
@@ -23,25 +26,43 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity implements MoviesAdapter.ListItemClickListener {
 
-    public RecyclerView mRecyclerView;
-    public MoviesAdapter mMoviesAdapter;
-    public MoviesList mMoviesList;
-    public ProgressBar mProgress;
+    @BindView(R.id.rvNumbersRecycler)
+    RecyclerView mRecyclerView;
+    @BindView(R.id.dialog_progress)
+    ProgressBar mProgress;
+    @BindView(R.id.error_network)
+    TextView mErrorNetwork;
+
+    private MoviesList mMoviesList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.rvNumbersRecycler);
+        ButterKnife.bind(this);
+
         mMoviesList = new MoviesList();
         GridLayoutManager layoutManager = new GridLayoutManager(this, calculateNoOfColumns());
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
-        mProgress = (ProgressBar)findViewById(R.id.dialog_progress);
         new FetchJSON().execute(Constants.POPULAR_BASE_URL);
+
+    }
+
+    private boolean isNetworkOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+        return isConnected;
 
     }
 
@@ -67,15 +88,37 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Lis
     @Override
     public void listItemClicked(int index) {
         Intent intent = new Intent(this, DetailsActivity.class);
+        intentValues(intent, index);
         startActivity(intent);
     }
 
-    public class FetchJSON extends AsyncTask<String, Void, String>{
+    private void intentValues(Intent intent, int index) {
+        try {
+            intent.putExtra(getString(R.string.overview_plot), mMoviesList.parseJSONLists(Constants.OVERVIEW).get(index));
+            intent.putExtra(getString(R.string.background_image), mMoviesList.parseJSONLists(Constants.BACKGROUND).get(index));
+            intent.putExtra(getString(R.string.rating_movie), mMoviesList.parseJSONLists(Constants.RATING).get(index));
+            intent.putExtra(getString(R.string.posters_image), mMoviesList.parseJSONLists(Constants.POSTER_PATH).get(index));
+            intent.putExtra(getString(R.string.name_movie), mMoviesList.parseJSONLists(Constants.NAME).get(index));
+            intent.putExtra(getString(R.string.release_date), mMoviesList.parseJSONLists(Constants.DATE).get(index));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private class FetchJSON extends AsyncTask<String, Void, String>{
 
         @Override
         protected void onPreExecute() {
-            mProgress.setVisibility(View.VISIBLE);
-            mRecyclerView.setVisibility(View.INVISIBLE);
+            if(isNetworkOnline()) {
+                mProgress.setVisibility(View.VISIBLE);
+                mRecyclerView.setVisibility(View.INVISIBLE);
+                mErrorNetwork.setVisibility(View.INVISIBLE);
+            }
+            else {
+                mProgress.setVisibility(View.INVISIBLE);
+                mRecyclerView.setVisibility(View.INVISIBLE);
+                mErrorNetwork.setVisibility(View.VISIBLE);
+            }
             super.onPreExecute();
         }
 
@@ -83,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Lis
         protected String doInBackground(String... params) {
             String s = null;
             try {
-               s =  mMoviesList.getJSONResponse(params[0]);
+                s =  mMoviesList.getJSONResponse(params[0]);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -92,10 +135,10 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Lis
 
         @Override
         protected void onPostExecute(String s) {
-            if(s!=null){
+            if(s!=null && isNetworkOnline()){
                 try {
-                    ArrayList<String> l = mMoviesList.parseJSONImage();
-                    mMoviesAdapter = new MoviesAdapter(l.size(), l, mRecyclerView, mProgress, MainActivity.this);
+                    ArrayList<String> posters = mMoviesList.parseJSONLists(Constants.POSTER_PATH);
+                    MoviesAdapter mMoviesAdapter = new MoviesAdapter(posters.size(), posters, mRecyclerView, mProgress, MainActivity.this);
                     mRecyclerView.setAdapter(mMoviesAdapter);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -105,10 +148,9 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Lis
         }
     }
 
-    public int calculateNoOfColumns() {
+    private int calculateNoOfColumns() {
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
-        int noOfColumns = (int) (dpWidth / 180);
-        return noOfColumns;
+        return (int) (dpWidth / 180);
     }
 }

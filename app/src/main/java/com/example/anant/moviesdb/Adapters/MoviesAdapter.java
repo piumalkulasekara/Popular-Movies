@@ -54,7 +54,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
         Picasso.with(context)
                 .load(Constants.IMAGE_BASE_URL+Constants.FILE_SIZE+ mList.get(position))
                 .placeholder(R.mipmap.ic_launcher)
-                .resize(500, 750)
                 .into(mMoviesImage, new com.squareup.picasso.Callback() {
                     @Override
                     public void onSuccess() {

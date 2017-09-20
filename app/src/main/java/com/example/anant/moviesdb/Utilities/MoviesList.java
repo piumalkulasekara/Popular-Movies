@@ -23,9 +23,9 @@ public class MoviesList {
     public MoviesList(){
     }
 
-    public String mJSONResults;
+    private String mJSONResults;
 
-    public URL buildURL(String URL){
+    private URL buildURL(String URL){
 
         URL url = null;
         Uri builtUri = Uri.parse(URL).buildUpon().
@@ -61,7 +61,7 @@ public class MoviesList {
         }
     }
 
-    public ArrayList<String> parseJSONImage() throws JSONException {
+    public ArrayList<String> parseJSONLists(String type) throws JSONException {
 
         ArrayList<String> mylist = new ArrayList<String>();
 
@@ -69,7 +69,7 @@ public class MoviesList {
         JSONArray array = jsonObject.getJSONArray("results");
         for(int i = 0; i<array.length();i++){
             JSONObject path = array.getJSONObject(i);
-            mylist.add(path.getString("poster_path"));
+            mylist.add(path.getString(type));
         }
         return mylist;
     }
