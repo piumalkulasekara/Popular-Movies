@@ -6,7 +6,7 @@ package com.example.anant.moviesdb.Utilities;
 
 public class Constants {
 
-    public static final String API_KEY = "38f1f556de133f605cc2e79b02dbce88";
+    public static final String API_KEY = "38f1f556de133f605cc2e79b02dbce88"; //Replace with your API_KEY
     public static final String POPULAR_BASE_URL = "http://api.themoviedb.org/3/movie/popular";
     public static final String TOP_RATED = "http://api.themoviedb.org/3/movie/top_rated";
     public static final String IMAGE_BASE_URL = "https://image.tmdb.org/t/p/";

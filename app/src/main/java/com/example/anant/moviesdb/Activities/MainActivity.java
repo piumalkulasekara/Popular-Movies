@@ -1,10 +1,6 @@
 package com.example.anant.moviesdb.Activities;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -12,19 +8,16 @@ import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.anant.moviesdb.Adapters.MoviesAdapter;
+import com.example.anant.moviesdb.Async.FetchJSON;
 import com.example.anant.moviesdb.R;
 import com.example.anant.moviesdb.Utilities.Constants;
 import com.example.anant.moviesdb.Utilities.MoviesList;
 
 import org.json.JSONException;
-
-import java.io.IOException;
-import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -48,21 +41,11 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Lis
         ButterKnife.bind(this);
 
         mMoviesList = new MoviesList();
+
         GridLayoutManager layoutManager = new GridLayoutManager(this, calculateNoOfColumns());
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
-        new FetchJSON().execute(Constants.POPULAR_BASE_URL);
-
-    }
-
-    private boolean isNetworkOnline() {
-        ConnectivityManager cm =
-                (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        boolean isConnected = activeNetwork != null &&
-                activeNetwork.isConnectedOrConnecting();
-        return isConnected;
+        new FetchJSON(mRecyclerView, mErrorNetwork, mProgress,mMoviesList, this).execute(Constants.POPULAR_BASE_URL);
 
     }
 
@@ -76,11 +59,11 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Lis
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId()==R.id.popular_sort_action){
             item.setChecked(true);
-            new FetchJSON().execute(Constants.POPULAR_BASE_URL);
+            new FetchJSON(mRecyclerView, mErrorNetwork, mProgress,mMoviesList, this).execute(Constants.POPULAR_BASE_URL);
         }
         else if(item.getItemId()==R.id.top_sort_action){
             item.setChecked(true);
-            new FetchJSON().execute(Constants.TOP_RATED);
+            new FetchJSON(mRecyclerView, mErrorNetwork, mProgress,mMoviesList, this).execute(Constants.TOP_RATED);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -105,52 +88,10 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Lis
         }
     }
 
-    private class FetchJSON extends AsyncTask<String, Void, String>{
-
-        @Override
-        protected void onPreExecute() {
-            if(isNetworkOnline()) {
-                mProgress.setVisibility(View.VISIBLE);
-                mRecyclerView.setVisibility(View.INVISIBLE);
-                mErrorNetwork.setVisibility(View.INVISIBLE);
-            }
-            else {
-                mProgress.setVisibility(View.INVISIBLE);
-                mRecyclerView.setVisibility(View.INVISIBLE);
-                mErrorNetwork.setVisibility(View.VISIBLE);
-            }
-            super.onPreExecute();
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            String s = null;
-            try {
-                s =  mMoviesList.getJSONResponse(params[0]);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return s;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            if(s!=null && isNetworkOnline()){
-                try {
-                    ArrayList<String> posters = mMoviesList.parseJSONLists(Constants.POSTER_PATH);
-                    MoviesAdapter mMoviesAdapter = new MoviesAdapter(posters.size(), posters, mRecyclerView, mProgress, MainActivity.this);
-                    mRecyclerView.setAdapter(mMoviesAdapter);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-            super.onPostExecute(s);
-        }
-    }
-
     private int calculateNoOfColumns() {
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
-        return (int) (dpWidth / 180);
+        int numColumns = (int) (dpWidth / 180);
+        return numColumns > 2 ? numColumns : 2;
     }
 }

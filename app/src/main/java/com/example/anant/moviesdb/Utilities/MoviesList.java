@@ -1,6 +1,7 @@
 package com.example.anant.moviesdb.Utilities;
 
 import android.net.Uri;
+import android.support.compat.BuildConfig;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,7 +30,7 @@ public class MoviesList {
 
         URL url = null;
         Uri builtUri = Uri.parse(URL).buildUpon().
-                appendQueryParameter("api_key", Constants.API_KEY).
+                appendQueryParameter("api_key", com.example.anant.moviesdb.BuildConfig.YOU_API_KEY).
                 appendQueryParameter("language", "en-US").
                 build();
         try {

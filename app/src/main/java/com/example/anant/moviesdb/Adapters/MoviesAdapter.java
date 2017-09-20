@@ -2,6 +2,7 @@ package com.example.anant.moviesdb.Adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,16 +25,12 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
     private int mNumberImages;
     private ImageView mMoviesImage;
     private ArrayList<String> mList;
-    private RecyclerView recyclerView;
-    private ProgressBar progressBar;
     private final ListItemClickListener mListItemClicked;
 
-    public MoviesAdapter(int numberOfImages, ArrayList<String> list, RecyclerView recyclerView, ProgressBar progressBar, ListItemClickListener listItemClickListener){
+    public MoviesAdapter(int numberOfImages, ArrayList<String> list, ListItemClickListener listItemClickListener){
 
         mNumberImages = numberOfImages;
         mList = list;
-        this.recyclerView = recyclerView;
-        this.progressBar = progressBar;
         mListItemClicked = listItemClickListener;
     }
 
@@ -53,21 +50,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
     public void onBindViewHolder(MoviesViewHolder holder, final int position) {
         Picasso.with(context)
                 .load(Constants.IMAGE_BASE_URL+Constants.FILE_SIZE+ mList.get(position))
-                .placeholder(R.mipmap.ic_launcher)
-                .into(mMoviesImage, new com.squareup.picasso.Callback() {
-                    @Override
-                    public void onSuccess() {
-                        if(position==mNumberImages-1) {
-                            recyclerView.setVisibility(View.VISIBLE);
-                            progressBar.setVisibility(View.INVISIBLE);
-                        }
-                    }
-
-                    @Override
-                    public void onError() {
-                        //do smth when there is picture loading error
-                    }
-                });
+                .placeholder(R.drawable.loading_image).resize(500, 750)
+                .into(mMoviesImage);
     }
 
     @Override
